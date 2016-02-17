@@ -23,7 +23,7 @@ class EloquentFilter
     const MUST = 'must';
     const SHOULD = 'should';
 
-    const NOT_CONTAINS_PATTERN = '/^((?!%s.))/';
+    const NOT_CONTAINS_PATTERN = '/^((?!%s.))/i';
 
     public static function filter(Builder $query, FilterInterface $filter)
     {

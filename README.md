@@ -65,7 +65,7 @@ A well defined repository returns one kind of objects that belong to one Busines
 
 ```php
 <?php
-use NilPortugues\Foundation\Infrastructure\Model\Repository\Eloquent\EloquentRepository;
+use NilPortugues\Foundation\Infrastructure\Model\Repository\EloquentMongoDB\EloquentRepository;
 
 class UserRepository extends EloquentRepository 
 {
@@ -87,7 +87,7 @@ The fully implementation should be along the lines:
 
 ```php
 <?php
-use NilPortugues\Foundation\Infrastructure\Model\Repository\Eloquent\EloquentRepository;
+use NilPortugues\Foundation\Infrastructure\Model\Repository\EloquentMongoDB\EloquentRepository;
 
 class UserRepository extends EloquentRepository 
 {
@@ -176,9 +176,9 @@ While the amount of code is less than the previous example, bare in mind that yo
 
 ```php
 <?php
-use NilPortugues\Foundation\Infrastructure\Model\Repository\Eloquent\EloquentRepository as Repository;
+use NilPortugues\Foundation\Infrastructure\Model\Repository\EloquentMongoDB\EloquentRepository;
 
-class EloquentRepository extends Repository
+class EloquentMongoDBRepository extends EloquentRepository
 {
     /**
      * @var string
