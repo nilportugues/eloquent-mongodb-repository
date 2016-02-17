@@ -25,6 +25,7 @@ class EloquentFilter
 
     const NOT_CONTAINS_PATTERN = '/^((?!%s.))/i';
     const NOT_ENDS_WITH_PATTERN = '/.*(?<!%s)$/i';
+    const NOT_STARTS_WITH_PATTERN = '/^(?!%s).+/i';
 
     public static function filter(Builder $query, FilterInterface $filter)
     {
@@ -189,7 +190,7 @@ class EloquentFilter
                         $where->where($key, 'regex', '/'.$value.'/i');
                         break;
                     case BaseFilter::STARTS_WITH:
-                        $where->where($key, 'not regex', '/^'.$value.'/i');
+                        $where->where($key, 'regex', sprintf(self::NOT_STARTS_WITH_PATTERN, $value));
                         break;
                     case BaseFilter::ENDS_WITH:
                         $where->where($key, 'regex', sprintf(self::NOT_ENDS_WITH_PATTERN, $value));

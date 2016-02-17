@@ -223,7 +223,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-
     public function testFindByWithMustNotEqualTest()
     {
         $filter = new Filter();
@@ -251,7 +250,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
             $this->assertTrue(false !== strpos($result['name'], 'Ken'));
         }
     }
-
 
     public function testFindByWithMustContain()
     {
@@ -281,7 +279,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-
     public function testFindByWithMustEndsWith()
     {
         $filter = new Filter();
@@ -300,6 +297,34 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $filter = new Filter();
         $filter->mustNot()->endsWith('name', 'mori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+        foreach ($results as $result) {
+            $this->assertFalse(strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustStartsWith()
+    {
+        $filter = new Filter();
+        $filter->must()->startsWith('name', 'Ke');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustNotStartsWith()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->startsWith('name', 'Ke');
 
         $fields = new Fields(['name']);
         $results = $this->repository->findBy($filter, null, $fields);
