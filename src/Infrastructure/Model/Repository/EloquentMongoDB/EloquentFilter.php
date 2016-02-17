@@ -60,15 +60,15 @@ class EloquentFilter
     {
         switch ($condition) {
             case self::MUST:
-                self::apply($where, $filters, '$and');
+                self::apply($where, $filters);
                 break;
 
             case self::MUST_NOT:
-                self::applyNot($where, $filters, '$not');
+                self::applyNot($where, $filters);
                 break;
 
             case self::SHOULD:
-                self::apply($where, $filters, '$or');
+                self::apply($where, $filters);
                 break;
         }
     }
@@ -76,9 +76,8 @@ class EloquentFilter
     /**
      * @param Builder $where
      * @param array   $filters
-     * @param string  $boolean
      */
-    protected static function apply(Builder $where, array $filters, $boolean)
+    protected static function apply(Builder $where, array $filters)
     {
         foreach ($filters as $filterName => $valuePair) {
             foreach ($valuePair as $key => $value) {
@@ -86,13 +85,16 @@ class EloquentFilter
                     if (count($value) > 1) {
                         switch ($filterName) {
                             case BaseFilter::RANGES:
-                                $where->getQuery()->whereBetween($key, [$value[0], $value[1]], $boolean);
+                                $where->getQuery()->whereBetween($key, [$value[0], $value[1]]);
                                 break;
                             case BaseFilter::NOT_RANGES:
-                                $where->getQuery()->whereNotBetween($key, [$value[0], $value[1]], $boolean);
+                                $where->getQuery()->whereNotBetween($key, [$value[0], $value[1]]);
                                 break;
                             case BaseFilter::GROUP:
-                                $where->getQuery()->whereIn($key, $value, $boolean);
+                                $where->getQuery()->whereIn($key, $value);
+                                break;
+                            case BaseFilter::NOT_GROUP:
+                                $where->getQuery()->whereNotIn($key, $value);
                                 break;
                         }
                         break;
@@ -102,34 +104,34 @@ class EloquentFilter
 
                 switch ($filterName) {
                     case BaseFilter::GREATER_THAN_OR_EQUAL:
-                        $where->where($key, '>=', $value, $boolean);
+                        $where->where($key, '>=', $value);
                         break;
                     case BaseFilter::GREATER_THAN:
-                        $where->where($key, '>', $value, $boolean);
+                        $where->where($key, '>', $value);
                         break;
                     case BaseFilter::LESS_THAN_OR_EQUAL:
-                        $where->where($key, '<=', $value, $boolean);
+                        $where->where($key, '<=', $value);
                         break;
                     case BaseFilter::LESS_THAN:
-                        $where->where($key, '<', $value, $boolean);
+                        $where->where($key, '<', $value);
                         break;
                     case BaseFilter::CONTAINS:
-                        $where->where($key, 'regex', '/'.$value.'/i', $boolean);
+                        $where->where($key, 'regex', '/'.$value.'/i');
                         break;
                     case BaseFilter::NOT_CONTAINS:
                         $where->where($key, 'regex', sprintf(self::NOT_CONTAINS_PATTERN, $value));
                         break;
                     case BaseFilter::STARTS_WITH:
-                        $where->where($key, 'regex', '/^'.$value.'/i', $boolean);
+                        $where->where($key, 'regex', '/^'.$value.'/i');
                         break;
                     case BaseFilter::ENDS_WITH:
-                        $where->where($key, 'regex', '/'.$value.'$/i', $boolean);
+                        $where->where($key, 'regex', '/'.$value.'$/i');
                         break;
                     case BaseFilter::EQUALS:
-                        $where->where($key, '=', $value, $boolean);
+                        $where->where($key, '=', $value);
                         break;
                     case BaseFilter::NOT_EQUAL:
-                        $where->where($key, '!=', $value, $boolean);
+                        $where->where($key, '!=', $value);
                         break;
                 }
             }
@@ -139,9 +141,8 @@ class EloquentFilter
     /**
      * @param Builder $where
      * @param array   $filters
-     * @param string  $boolean
      */
-    protected static function applyNot(Builder $where, array $filters, $boolean)
+    protected static function applyNot(Builder $where, array $filters)
     {
         foreach ($filters as $filterName => $valuePair) {
             foreach ($valuePair as $key => $value) {
@@ -149,17 +150,17 @@ class EloquentFilter
                     if (count($value) > 1) {
                         switch ($filterName) {
                             case BaseFilter::RANGES:
-                                $where->getQuery()->whereNotBetween($key, [$value[0], $value[1]], $boolean);
+                                $where->getQuery()->whereNotBetween($key, [$value[0], $value[1]]);
 
                                 break;
                             case BaseFilter::NOT_RANGES:
-                                $where->getQuery()->whereBetween($key, [$value[0], $value[1]], $boolean);
+                                $where->getQuery()->whereBetween($key, [$value[0], $value[1]]);
                                 break;
                             case BaseFilter::NOT_GROUP:
-                                $where->getQuery()->whereIn($key, $value, $boolean);
+                                $where->getQuery()->whereIn($key, $value);
                                 break;
                             case BaseFilter::GROUP:
-                                $where->getQuery()->whereNotIn($key, $value, $boolean);
+                                $where->getQuery()->whereNotIn($key, $value);
                                 break;
                         }
                         break;
@@ -169,34 +170,34 @@ class EloquentFilter
 
                 switch ($filterName) {
                     case BaseFilter::GREATER_THAN_OR_EQUAL:
-                        $where->where($key, '<', $value, $boolean);
+                        $where->where($key, '<', $value);
                         break;
                     case BaseFilter::GREATER_THAN:
-                        $where->where($key, '<=', $value, $boolean);
+                        $where->where($key, '<=', $value);
                         break;
                     case BaseFilter::LESS_THAN_OR_EQUAL:
-                        $where->where($key, '>', $value, $boolean);
+                        $where->where($key, '>', $value);
                         break;
                     case BaseFilter::LESS_THAN:
-                        $where->where($key, '>=', $value, $boolean);
+                        $where->where($key, '>=', $value);
                         break;
                     case BaseFilter::CONTAINS:
                         $where->where($key, 'regex', sprintf(self::NOT_CONTAINS_PATTERN, $value));
                         break;
                     case BaseFilter::NOT_CONTAINS:
-                        $where->where($key, 'regex', '/'.$value.'/i', $boolean);
+                        $where->where($key, 'regex', '/'.$value.'/i');
                         break;
                     case BaseFilter::STARTS_WITH:
-                        $where->where($key, 'not regex', '/^'.$value.'/i', $boolean);
+                        $where->where($key, 'not regex', '/^'.$value.'/i');
                         break;
                     case BaseFilter::ENDS_WITH:
-                        $where->where($key, 'not regex', '/'.$value.'$/i', $boolean);
+                        $where->where($key, 'not regex', '/'.$value.'$/i');
                         break;
                     case BaseFilter::EQUALS:
-                        $where->where($key, '!=', $value, $boolean);
+                        $where->where($key, '!=', $value);
                         break;
                     case BaseFilter::NOT_EQUAL:
-                        $where->where($key, '=', $value, $boolean);
+                        $where->where($key, '=', $value);
                         break;
                 }
             }

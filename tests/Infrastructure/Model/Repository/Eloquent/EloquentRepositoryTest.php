@@ -195,6 +195,78 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($result));
     }
 
+    public function testFindByWithMustEqual()
+    {
+        $filter = new Filter();
+        $filter->must()->equal('name', 'Ken Sugimori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustNotEqual()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->equal('name', 'Ken Sugimori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+        foreach ($results as $result) {
+            $this->assertFalse(strpos($result['name'], 'Ken'));
+        }
+    }
+
+
+    public function testFindByWithMustNotEqualTest()
+    {
+        $filter = new Filter();
+        $filter->must()->notEqual('name', 'Ken Sugimori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+        foreach ($results as $result) {
+            $this->assertFalse(strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustNotNotEqual()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->notEqual('name', 'Ken Sugimori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
+
+    public function testFindByWithMustContain()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Ken');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
     public function testFindByWithMustNotContain()
     {
         $filter = new Filter();
@@ -203,6 +275,7 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $fields = new Fields(['name']);
         $results = $this->repository->findBy($filter, null, $fields);
 
+        $this->assertEquals(3, count($results));
         foreach ($results as $result) {
             $this->assertFalse(strpos($result['name'], 'Ken'));
         }
