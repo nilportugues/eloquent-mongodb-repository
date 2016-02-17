@@ -1,0 +1,43 @@
+{
+  "name": "nilportugues/eloquent-mongodb-repository",
+  "description": "Eloquent MongoDB Repository implementation",
+  "keywords": ["eloquent", "mongodb", "mongo", "laravel", "repository", "cache", "ddd", "hexagonal", "ports and adapters", "ports", "adapters", "repository", "pageable", "pagination", "nil portugues", "nilportugues"],
+  "type": "library",
+  "homepage": "http://nilportugues.com",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Nil Portugués",
+      "email": "contact@nilportugues.com"
+    }
+  ],
+  "require": {
+    "nilportugues/repository": "^2.0",
+    "nilportugues/assert": "^1.0",
+    "illuminate/database": "^5.2",
+    "illuminate/pagination": "^5.2",
+    "mongodb/mongodb" : "1.0.0",
+    "jenssegers/mongodb" : "v3.0.0-beta"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.8.*",
+    "fabpot/php-cs-fixer": "1.9.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "NilPortugues\\Foundation\\": "src",
+      "NilPortugues\\Example\\": "example"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "NilPortugues\\Tests\\Foundation\\": "tests/"
+    }
+  },
+  "suggest": {
+    "nilportugues/mongodb-repository": "MongoDB Repository implementation.",
+    "nilportugues/eloquent-repository": "SQL Eloquent Repository implementation.",
+    "nilportugues/filesystem-repository": "FileSystem repository implementation.",
+    "nilportugues/repository-cache": "Cache any nilportugues/repository implementation."
+  }
+}
