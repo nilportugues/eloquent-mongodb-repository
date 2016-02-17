@@ -280,4 +280,33 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
             $this->assertFalse(strpos($result['name'], 'Ken'));
         }
     }
+
+
+    public function testFindByWithMustEndsWith()
+    {
+        $filter = new Filter();
+        $filter->must()->endsWith('name', 'mori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustNotEndsWith()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->endsWith('name', 'mori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+        foreach ($results as $result) {
+            $this->assertFalse(strpos($result['name'], 'Ken'));
+        }
+    }
 }
