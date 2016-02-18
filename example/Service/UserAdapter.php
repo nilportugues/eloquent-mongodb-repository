@@ -30,6 +30,6 @@ class UserAdapter
      */
     public function fromEloquent($model)
     {
-        return new User(new UserId($model->id), $model->name, new DateTimeImmutable($model->created_at));
+        return new User(new UserId($model->_id), $model->name, new DateTimeImmutable($model->created_at));
     }
 }
