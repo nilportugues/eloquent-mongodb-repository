@@ -17,19 +17,19 @@ class UserAdapter
     public function toEloquent(User $user)
     {
         $mongoDB = new MongoDBUser();
-        $mongoDB->_id = $user->id();
+        $mongoDB->id = $user->id();
         $mongoDB->name = $user->name();
         $mongoDB->created_at = $user->registrationDate();
 
         return $mongoDB;
     }
     /**
-     * @param \NilPortugues\Example\Persistence\Eloquent\User|stdClass $model
+     * @param array $model
      *
      * @return \NilPortugues\Example\Domain\User
      */
-    public function fromEloquent($model)
+    public function fromEloquent(array $model)
     {
-        return new User(new UserId($model->_id), $model->name, new DateTimeImmutable($model->created_at));
+        return new User(new UserId($model['id']), $model['name'], new DateTimeImmutable($model['created_at']));
     }
 }

@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use NilPortugues\Example\Domain\UserId;
-use NilPortugues\Example\Persistence\Eloquent\User as UserModel;
+use NilPortugues\Example\Persistence\Eloquent\User;
 use NilPortugues\Example\Persistence\Eloquent\UserRepository;
 use NilPortugues\Example\Service\UserAdapter;
 use NilPortugues\Foundation\Domain\Model\Repository\Filter;
@@ -41,16 +41,17 @@ $capsule->setAsGlobal();
 //-------------------------------------------------------------------------------------------------------------
 // - Create dummy data for the same of the example.
 //-------------------------------------------------------------------------------------------------------------
-UserModel::query()->delete();
+User::query()->delete();
 
-$model = new UserModel();
-$model->_id = 1;
+$model = new User();
+$model->id = 1;
 $model->name = 'Admin User';
+$model->created_at = '2016-02-18';
 $model->save();
 
 for ($i = 2; $i <= 20; ++$i) {
-    $model = new UserModel();
-    $model->_id = $i;
+    $model = new User();
+    $model->id = $i;
     $model->name = 'Dummy User '.$i;
     $model->created_at = (new DateTime())->setDate(2016, rand(1, 12), rand(1, 27));
     $model->save();
@@ -68,9 +69,10 @@ print_r($repository->find($userId));
 //-------------------------------------------------------------------------------------------------------------
 // - getUsersRegisteredLastMonth
 //-------------------------------------------------------------------------------------------------------------
+
 $filter = new Filter();
-$filter->must()->beGreaterThanOrEqual('created_at', '2016-01-01');
-$filter->must()->beLessThan('created_at', '2016-02-01');
+$filter->must()->notIncludeGroup('id', [2, 5]);
+$filter->must()->beGreaterThan('created_at', new DateTime('2016-03-01'));
 
 $sort = new Sort();
 $sort->setOrderFor('created_at', new Order('ASC'));

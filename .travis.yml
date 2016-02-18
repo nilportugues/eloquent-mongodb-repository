@@ -9,6 +9,7 @@ matrix:
     
 before_script:
   - composer install
+  - pecl install mongodb
 
 script: 
   - php vendor/bin/phpunit

@@ -55,7 +55,7 @@ class UserRepository extends EloquentRepository
         /** @var Model $eloquentModel */
         $eloquentModel = parent::find($id, $fields);
 
-        return $this->userAdapter->fromEloquent($eloquentModel);
+        return $this->userAdapter->fromEloquent($eloquentModel->toArray());
     }
 
     /**
@@ -120,8 +120,9 @@ class UserRepository extends EloquentRepository
     {
         $results = [];
         foreach ($eloquentModelArray as $eloquentModel) {
-            //This is required to handle findAll returning array, not objects.
-            $eloquentModel = (object) $eloquentModel;
+            if (is_object($eloquentModel) && method_exists($eloquentModel, 'toArray')) {
+                $eloquentModel = $eloquentModel->toArray();
+            }
 
             $results[] = $this->userAdapter->fromEloquent($eloquentModel);
         }

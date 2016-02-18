@@ -66,10 +66,9 @@ Now that Eloquent is running, we can use the Repository.
 
 ### A note about MongoDB Models
 
-The best way to ensure maximum compatibility with other Repository implementations is to override MongoDB's ObjectId field: `_id`. This means, not using MongoDB's ObjectId to fetch elements.
+The best way to ensure maximum compatibility with other Repository implementations is to **ignore** the MongoDB's ObjectId field: `_id` and declare one such as `id`. This means, not using MongoDB's ObjectId to fetch elements.
 
 This also means that you'll need an Adapter build from MongoDB object the expected Business objects. More on that further down, or check the [/example](https://github.com/nilportugues/php-eloquent-repository/tree/master/example) directory.
-
 
 ### One Repository for One Eloquent Model
 

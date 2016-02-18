@@ -25,4 +25,11 @@ class User extends Model implements Identity
      * @var string
      */
     protected $table = 'users';
+
+    /**
+     * Override the default MongoDB key _id to maximize compatibility.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id';
 }

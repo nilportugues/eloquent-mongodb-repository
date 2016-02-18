@@ -108,10 +108,11 @@ class EloquentFilter
                     } else {
                         switch ($filterName) {
                             case BaseFilter::GROUP:
-                                $where->whereIn($key, $value, $boolean);
+                                $where->whereIn($key, $value);
                                 break;
                             case BaseFilter::NOT_GROUP:
-                                $where->whereNotIn($key, $value, $boolean);
+                                $where->whereNotIn($key, $value);
+                                $where->whereNotNull($key);
                                 break;
                         }
                     }
@@ -177,6 +178,7 @@ class EloquentFilter
                         switch ($filterName) {
                             case BaseFilter::GROUP:
                                 $where->whereNotIn($key, $value);
+                                $where->whereNotNull($key);
                                 break;
                             case BaseFilter::NOT_GROUP:
                                 $where->whereIn($key, $value);
