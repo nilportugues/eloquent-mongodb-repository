@@ -26,12 +26,17 @@ class EloquentFilter
     const CONTAINS_PATTERN = '/%s/i';
     const STARTS_WITH_PATTERN = '/^%s/i';
     const ENDS_WITH_PATTERN = '/%s$/i';
-    const EQUALS_PATTERN = '/^%s/i';
 
     const NOT_CONTAINS_PATTERN = '/^((?!%s.))/i';
     const NOT_ENDS_WITH_PATTERN = '/.*(?<!%s)$/i';
     const NOT_STARTS_WITH_PATTERN = '/^(?!%s).+/i';
 
+    /**
+     * @param Builder         $query
+     * @param FilterInterface $filter
+     *
+     * @return Builder
+     */
     public static function filter(Builder $query, FilterInterface $filter)
     {
         foreach ($filter->filters() as $condition => $filters) {

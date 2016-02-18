@@ -27,6 +27,7 @@ trait IdentityTrait
 
     /**
      * @return string
+     * @codeCoverageIgnore
      */
     public function __toString()
     {

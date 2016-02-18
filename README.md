@@ -63,11 +63,11 @@ $capsule->setAsGlobal();
 
 Now that Eloquent is running, we can use the Repository.
 
-### A note about Jenssegers MongoDB Models
+### A note about MongoDB Models
 
 The best way to ensure maximum compatibility with other Repository implementations is to override MongoDB's ObjectId field: `_id`. This means, not using MongoDB's ObjectId to fetch elements.
 
-This also means that you'll need a UserAdapter to create MongoDB or Business objects. More on that further down, or check the [/example](https://github.com/nilportugues/php-eloquent-repository/tree/master/example) directory.
+This also means that you'll need an Adapter build from MongoDB object the expected Business objects. More on that further down, or check the [/example](https://github.com/nilportugues/php-eloquent-repository/tree/master/example) directory.
 
 
 ### One Repository for One Eloquent Model
@@ -158,6 +158,29 @@ class UserRepository extends EloquentRepository
         );
     } 
 
+    /**
+     * {@inheritdoc}
+     */
+    public function add(Identity $value)
+    {
+        $value = $this->userAdapter->toEloquent($value);
+
+        return parent::add($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addAll(array $values)
+    {
+        $eloquent = [];
+        foreach ($values as $value) {
+            $eloquent[] = $this->userAdapter->toEloquent($value);
+        }
+
+        parent::addAll($eloquent);
+    }
+    
    /**
     * @param array $eloquentModelArray
     * @return array

@@ -92,7 +92,7 @@ class UserRepository extends EloquentRepository
     public function add(Identity $value)
     {
         Assert::isInstanceOf($value, User::class);
-        $this->userAdapter->toEloquent($value);
+        $value = $this->userAdapter->toEloquent($value);
 
         return parent::add($value);
     }
