@@ -24,11 +24,11 @@ No database connection will be needed, nor fakes. Using an `InMemoryRepository` 
 
 Also, if you feel like changing the repository implementation, no logic changes would be needed, as there are a set of drivers for you to use out of the box:
 
-- `composer require nilportugues/repository-cache` for caching.
-- `composer require nilportugues/repository` for an InMemoryRepository implementation.
-- `composer require nilportugues/filesystem-repository` for a FileSystemRepository.
-- `composer require nilportugues/eloquent-repository` for a SQL Eloquent implementation.
-- `composer require nilportugues/doctrine-repository` for a SQL Doctrine implementation.
+- `composer require nilportugues/repository-cache` for [caching]((https://github.com/nilportugues/php-repository-cache).
+- `composer require nilportugues/repository` for an [InMemoryRepository implementation](https://github.com/nilportugues/php-repository).
+- `composer require nilportugues/filesystem-repository` for a [FileSystemRepository implementation](https://github.com/nilportugues/php-filesystem-repository).
+- `composer require nilportugues/eloquent-repository` for a [SQL Eloquent implementation](https://github.com/nilportugues/php-eloquent-repository).
+- `composer require nilportugues/doctrine-repository` for a [SQL Doctrine implementation](https://github.com/nilportugues/php-doctrine-repository).
 
 
 
