@@ -11,6 +11,7 @@
 namespace NilPortugues\Example\Persistence\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
+use NilPortugues\Assert\Assert;
 use NilPortugues\Example\Service\UserAdapter;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Fields;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Filter;
@@ -18,7 +19,7 @@ use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Identity;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Pageable;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Sort;
 use NilPortugues\Foundation\Domain\Model\Repository\Page;
-use NilPortugues\Foundation\Infrastructure\Model\Repository\Eloquent\EloquentRepository;
+use NilPortugues\Foundation\Infrastructure\Model\Repository\EloquentMongoDB\EloquentRepository;
 
 /**
  * Class UserRepository.
@@ -83,6 +84,31 @@ class UserRepository extends EloquentRepository
             $page->filters(),
             $page->fields()
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function add(Identity $value)
+    {
+        Assert::isInstanceOf($value, User::class);
+        $this->userAdapter->toEloquent($value);
+
+        return parent::add($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addAll(array $values)
+    {
+        $eloquent = [];
+        foreach ($values as $value) {
+            Assert::isInstanceOf($value, User::class);
+            $eloquent[] = $this->userAdapter->toEloquent($value);
+        }
+
+        parent::addAll($eloquent);
     }
 
     /**

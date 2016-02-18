@@ -11,11 +11,17 @@ Use [Composer](https://getcomposer.org) to install the package:
 $ composer require nilportugues/eloquent-mongodb-repository
 ```
 
-## Why?
+## Why? Drivers and Multiple Implementations!
 
 Using this implementation you can switch it out to test your code without setting up databases.
 
-**Drivers:**
+Doesn't sound handy? Let's think of yet another use case you'll love using this. `Functional tests` and `Unitary tests`.
+
+No database connection will be needed, nor fakes. Using an `InMemoryRepository` or `FileSystemRepository` implementation will make those a breeze to code. And once the tests finish, all data may be destroyed with no worries at all.
+
+**Available drivers:**
+
+Also, if you feel like changing the repository implementation, no logic changes would be needed, as there are a set of drivers for you to use out of the box:
 
 - `composer require nilportugues/repository-cache` for caching.
 - `composer require nilportugues/repository` for an InMemoryRepository implementation.
@@ -23,9 +29,7 @@ Using this implementation you can switch it out to test your code without settin
 - `composer require nilportugues/eloquent-repository` for a SQL Eloquent implementation.
 - `composer require nilportugues/doctrine-repository` for a SQL Doctrine implementation.
 
-Doesn't sound handy? Let's think of yet another use case you'll love using this. `Functional tests` and `Unitary tests`.
 
-No database connection will be needed, nor fakes. Using an `InMemoryRepository` or `FileSystemRepository` implementation will make those a breeze to code. And once the tests finish, all data may be destroyed with no worries at all.
 
 ## Usage
 
@@ -58,6 +62,13 @@ $capsule->setAsGlobal();
 ```
 
 Now that Eloquent is running, we can use the Repository.
+
+### A note about Jenssegers MongoDB Models
+
+The best way to ensure maximum compatibility with other Repository implementations is to override MongoDB's ObjectId field: `_id`. This means, not using MongoDB's ObjectId to fetch elements.
+
+This also means that you'll need a UserAdapter to create MongoDB or Business objects. More on that further down, or check the [/example](https://github.com/nilportugues/php-eloquent-repository/tree/master/example) directory.
+
 
 ### One Repository for One Eloquent Model
 

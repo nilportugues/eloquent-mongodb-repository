@@ -10,9 +10,9 @@
  */
 namespace NilPortugues\Example\Persistence\Eloquent;
 
-use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Identity;
-use NilPortugues\Foundation\Infrastructure\Model\Repository\Eloquent\IdentityTrait;
+use NilPortugues\Foundation\Infrastructure\Model\Repository\EloquentMongoDB\IdentityTrait;
 
 /**
  * Class User.

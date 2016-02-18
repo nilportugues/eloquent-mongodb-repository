@@ -3,3 +3,4 @@ build/
 vendor/
 composer.lock
 .php_cs.cache
+example/mongo_populated.lock

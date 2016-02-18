@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Illuminate\Database\Schema\Blueprint;
 use NilPortugues\Example\Domain\UserId;
 use NilPortugues\Example\Persistence\Eloquent\User as UserModel;
 use NilPortugues\Example\Persistence\Eloquent\UserRepository;
@@ -16,33 +15,45 @@ include_once '../vendor/autoload.php';
 // - Create database if does not exist
 //-------------------------------------------------------------------------------------------------------------
 $capsule = new Capsule();
-$capsule->addConnection(['driver' => 'sqlite', 'database' => __DIR__.'/database.db', 'prefix' => ''], 'default');
+
+//Adds MongoDb support.
+$capsule->getDatabaseManager()->extend('mongodb', function ($config) {
+    return new Jenssegers\Mongodb\Connection($config);
+});
+
+//Create connection
+$capsule->addConnection([
+    'driver' => 'mongodb',
+    'host' => 'localhost',
+    'port' => 27017,
+    'database' => 'users',
+    'username' => '',
+    'password' => '',
+    'options' => [
+        'db' => 'admin',
+    ],
+],
+    'default'
+);
 $capsule->bootEloquent();
 $capsule->setAsGlobal();
 
 //-------------------------------------------------------------------------------------------------------------
 // - Create dummy data for the same of the example.
 //-------------------------------------------------------------------------------------------------------------
-if (!file_exists(__DIR__.'/database.db')) {
-    file_put_contents(__DIR__.'/database.db', '');
-    Capsule::schema()->dropIfExists('users');
-    Capsule::schema()->create('users', function (Blueprint $table) {
-        $table->string('name', 255);
-        $table->integer('id');
-        $table->primary('id');
-        $table->timestamps();
-    });
+UserModel::query()->delete();
 
+$model = new UserModel();
+$model->_id = 1;
+$model->name = 'Admin User';
+$model->save();
+
+for ($i = 2; $i <= 20; ++$i) {
     $model = new UserModel();
-    $model->name = 'Admin User';
+    $model->_id = $i;
+    $model->name = 'Dummy User '.$i;
+    $model->created_at = (new DateTime())->setDate(2016, rand(1, 12), rand(1, 27));
     $model->save();
-
-    for ($i = 2; $i <= 20; ++$i) {
-        $model = new UserModel();
-        $model->name = 'Dummy User '.$i;
-        $model->created_at = (new DateTime())->setDate(2016, rand(1, 12), rand(1, 27));
-        $model->save();
-    }
 }
 
 //-------------------------------------------------------------------------------------------------------------
