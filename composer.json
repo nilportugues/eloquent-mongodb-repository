@@ -16,7 +16,6 @@
     "nilportugues/assert": "^1.0",
     "illuminate/database": "^5.2",
     "illuminate/pagination": "^5.2",
-    "mongodb/mongodb" : "1.0.0",
     "jenssegers/mongodb" : "v3.0.0-beta"
   },
   "require-dev": {
