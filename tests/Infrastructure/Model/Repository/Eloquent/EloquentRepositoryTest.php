@@ -195,6 +195,10 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($result));
     }
 
+    //--------------------------------------------------------------------------------
+    // MUST FILTER TESTS
+    //--------------------------------------------------------------------------------
+
     public function testFindByWithMustEqual()
     {
         $filter = new Filter();
@@ -209,10 +213,10 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testFindByWithMustNotEqual()
+    public function testFindByWithMustNotEqualTest()
     {
         $filter = new Filter();
-        $filter->mustNot()->equal('name', 'Ken Sugimori');
+        $filter->must()->notEqual('name', 'Ken Sugimori');
 
         $fields = new Fields(['name']);
         $results = $this->repository->findBy($filter, null, $fields);
@@ -223,10 +227,154 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testFindByWithMustNotEqualTest()
+    public function testFindByWithMustContain()
     {
         $filter = new Filter();
-        $filter->must()->notEqual('name', 'Ken Sugimori');
+        $filter->must()->contain('name', 'Ken');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustNotContainTest()
+    {
+        $filter = new Filter();
+        $filter->must()->notContain('name', 'Ken');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+        foreach ($results as $result) {
+            $this->assertFalse(strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustEndsWith()
+    {
+        $filter = new Filter();
+        $filter->must()->endsWith('name', 'mori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustStartsWith()
+    {
+        $filter = new Filter();
+        $filter->must()->startsWith('name', 'Ke');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustBeLessThan()
+    {
+        $filter = new Filter();
+        $filter->must()->beLessThan('totalOrders', 6);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByWithMustBeLessThanOrEqual()
+    {
+        $filter = new Filter();
+        $filter->must()->beLessThanOrEqual('totalOrders', 4);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByWithMustBeGreaterThan()
+    {
+        $filter = new Filter();
+        $filter->must()->beGreaterThan('totalOrders', 2);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByWithMustBeGreaterThanOrEqual()
+    {
+        $filter = new Filter();
+        $filter->must()->beGreaterThanOrEqual('totalOrders', 2);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByMustIncludeGroup()
+    {
+        $filter = new Filter();
+        $filter->must()->includeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByMustNotIncludeGroupTest()
+    {
+        $filter = new Filter();
+        $filter->must()->notIncludeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByMustRange()
+    {
+        $filter = new Filter();
+        $filter->must()->range('totalOrders', 2, 4);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByMustNotRangeTest()
+    {
+        $filter = new Filter();
+        $filter->must()->notRange('totalOrders', 2, 4);
+
+        $results = $this->repository->findBy($filter);
+        $this->assertEquals(2, count($results));
+    }
+
+    //--------------------------------------------------------------------------------
+    // MUST NOT FILTER TESTS
+    //--------------------------------------------------------------------------------
+
+
+    public function testFindByWithMustNotEqual()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->equal('name', 'Ken Sugimori');
 
         $fields = new Fields(['name']);
         $results = $this->repository->findBy($filter, null, $fields);
@@ -251,38 +399,10 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testFindByWithMustContain()
-    {
-        $filter = new Filter();
-        $filter->must()->contain('name', 'Ken');
-
-        $fields = new Fields(['name']);
-        $results = $this->repository->findBy($filter, null, $fields);
-
-        $this->assertEquals(1, count($results));
-        foreach ($results as $result) {
-            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
-        }
-    }
-
     public function testFindByWithMustNotContain()
     {
         $filter = new Filter();
         $filter->mustNot()->contain('name', 'Ken');
-
-        $fields = new Fields(['name']);
-        $results = $this->repository->findBy($filter, null, $fields);
-
-        $this->assertEquals(3, count($results));
-        foreach ($results as $result) {
-            $this->assertFalse(strpos($result['name'], 'Ken'));
-        }
-    }
-
-    public function testFindByWithMustNotContainTest()
-    {
-        $filter = new Filter();
-        $filter->must()->notContain('name', 'Ken');
 
         $fields = new Fields(['name']);
         $results = $this->repository->findBy($filter, null, $fields);
@@ -307,20 +427,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testFindByWithMustEndsWith()
-    {
-        $filter = new Filter();
-        $filter->must()->endsWith('name', 'mori');
-
-        $fields = new Fields(['name']);
-        $results = $this->repository->findBy($filter, null, $fields);
-
-        $this->assertEquals(1, count($results));
-        foreach ($results as $result) {
-            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
-        }
-    }
-
     public function testFindByWithMustNotEndsWith()
     {
         $filter = new Filter();
@@ -332,20 +438,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(3, count($results));
         foreach ($results as $result) {
             $this->assertFalse(strpos($result['name'], 'Ken'));
-        }
-    }
-
-    public function testFindByWithMustStartsWith()
-    {
-        $filter = new Filter();
-        $filter->must()->startsWith('name', 'Ke');
-
-        $fields = new Fields(['name']);
-        $results = $this->repository->findBy($filter, null, $fields);
-
-        $this->assertEquals(1, count($results));
-        foreach ($results as $result) {
-            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
         }
     }
 
@@ -363,17 +455,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testFindByWithMustBeLessThan()
-    {
-        $filter = new Filter();
-        $filter->must()->beLessThan('totalOrders', 6);
-
-        $fields = new Fields(['name']);
-        $results = $this->repository->findBy($filter, null, $fields);
-
-        $this->assertEquals(4, count($results));
-    }
-
     public function testFindByWithMustNotBeLessThan()
     {
         $filter = new Filter();
@@ -382,17 +463,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $results = $this->repository->findBy($filter);
 
         $this->assertEquals(4, count($results));
-    }
-
-    public function testFindByWithMustBeLessThanOrEqual()
-    {
-        $filter = new Filter();
-        $filter->must()->beLessThanOrEqual('totalOrders', 4);
-
-        $fields = new Fields(['name']);
-        $results = $this->repository->findBy($filter, null, $fields);
-
-        $this->assertEquals(3, count($results));
     }
 
     public function testFindByWithMustNotBeLessThanOrEqual()
@@ -405,34 +475,12 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($results));
     }
 
-    public function testFindByWithMustBeGreaterThan()
-    {
-        $filter = new Filter();
-        $filter->must()->beGreaterThan('totalOrders', 2);
-
-        $fields = new Fields(['name']);
-        $results = $this->repository->findBy($filter, null, $fields);
-
-        $this->assertEquals(4, count($results));
-    }
-
     public function testFindByWithMustNotBeGreaterThan()
     {
         $filter = new Filter();
         $filter->mustNot()->beGreaterThan('totalOrders', 6);
 
         $results = $this->repository->findBy($filter);
-
-        $this->assertEquals(4, count($results));
-    }
-
-    public function testFindByWithMustBeGreaterThanOrEqual()
-    {
-        $filter = new Filter();
-        $filter->must()->beGreaterThanOrEqual('totalOrders', 2);
-
-        $fields = new Fields(['name']);
-        $results = $this->repository->findBy($filter, null, $fields);
 
         $this->assertEquals(4, count($results));
     }
@@ -447,16 +495,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(4, count($results));
     }
 
-    public function testFindByMustIncludeGroup()
-    {
-        $filter = new Filter();
-        $filter->must()->includeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
-
-        $results = $this->repository->findBy($filter);
-
-        $this->assertEquals(3, count($results));
-    }
-
     public function testFindByMustNotIncludeGroup()
     {
         $filter = new Filter();
@@ -467,30 +505,11 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($results));
     }
 
-    public function testFindByMustNotIncludeGroupTest()
-    {
-        $filter = new Filter();
-        $filter->must()->notIncludeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
-
-        $results = $this->repository->findBy($filter);
-
-        $this->assertEquals(1, count($results));
-    }
-
     public function testFindByMustNotNotIncludeGroup()
     {
         $filter = new Filter();
-        $filter->mustNot()->notIncludeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
-
-        $results = $this->repository->findBy($filter);
-
-        $this->assertEquals(3, count($results));
-    }
-
-    public function testFindByMustRange()
-    {
-        $filter = new Filter();
-        $filter->must()->range('totalOrders', 2, 4);
+        $filter->mustNot()->notIncludeGroup('date',
+            ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
 
         $results = $this->repository->findBy($filter);
 
@@ -504,14 +523,6 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         $results = $this->repository->findBy($filter);
         $this->assertEquals(2, count($results));
     }
-    public function testFindByMustNotRangeTest()
-    {
-        $filter = new Filter();
-        $filter->must()->notRange('totalOrders', 2, 4);
-
-        $results = $this->repository->findBy($filter);
-        $this->assertEquals(2, count($results));
-    }
 
     public function testFindByMustNotNotRangeTest()
     {
@@ -520,5 +531,161 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
 
         $results = $this->repository->findBy($filter);
         $this->assertEquals(3, count($results));
+    }
+
+    //--------------------------------------------------------------------------------
+    // SHOULD FILTER TESTS
+    //--------------------------------------------------------------------------------
+
+    public function testFindByWithShouldEqual()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->equal('name', 'Ken Sugimori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByShouldContain()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->contain('name', 'Ken');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByShouldNotContainTest()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->notContain('name', 'Ken');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByShouldEndsWith()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->endsWith('name', 'mori');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByShouldStartsWith()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->startsWith('name', 'Ke');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByShouldBeLessThan()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->beLessThan('totalOrders', 6);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByShouldBeLessThanOrEqual()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->beLessThanOrEqual('totalOrders', 4);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByShouldBeGreaterThan()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->beGreaterThan('totalOrders', 2);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByShouldBeGreaterThanOrEqual()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->beGreaterThanOrEqual('totalOrders', 2);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByShouldIncludeGroup()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->includeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByShouldNotIncludeGroupTest()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->notIncludeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByShouldRange()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->range('totalOrders', 2, 4);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByShouldNotRangeTest()
+    {
+        $filter = new Filter();
+        $filter->must()->contain('name', 'Hideo Kojima');
+        $filter->should()->notRange('totalOrders', 2, 4);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(2, count($results));
     }
 }
