@@ -11,6 +11,7 @@
 namespace NilPortugues\Foundation\Infrastructure\Model\Repository\EloquentMongoDB;
 
 use Jenssegers\Mongodb\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\BaseFilter;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Filter as FilterInterface;
 
@@ -32,8 +33,8 @@ class EloquentFilter
     const NOT_STARTS_WITH_PATTERN = '/^(?!%s).+/i';
 
     /**
-     * @param Builder         $query
-     * @param FilterInterface $filter
+     * @param Builder|EloquentBuilder $query
+     * @param FilterInterface         $filter
      *
      * @return Builder
      */
@@ -64,9 +65,9 @@ class EloquentFilter
     }
 
     /**
-     * @param Builder $where
-     * @param string  $condition
-     * @param array   $filters
+     * @param Builder|EloquentBuilder $where
+     * @param string                  $condition
+     * @param array                   $filters
      */
     private static function processConditions(Builder $where, $condition, array &$filters)
     {
@@ -86,8 +87,8 @@ class EloquentFilter
     }
 
     /**
-     * @param Builder $where
-     * @param array   $filters
+     * @param Builder|EloquentBuilder $where
+     * @param array                   $filters
      * @param $boolean
      */
     protected static function apply(Builder $where, array $filters, $boolean)
@@ -108,10 +109,10 @@ class EloquentFilter
                     } else {
                         switch ($filterName) {
                             case BaseFilter::GROUP:
-                                $where->whereIn($key, $value);
+                                $where->whereIn($key, $value, $boolean);
                                 break;
                             case BaseFilter::NOT_GROUP:
-                                $where->whereNotIn($key, $value);
+                                $where->whereNotIn($key, $value, $boolean);
                                 $where->whereNotNull($key);
                                 break;
                         }

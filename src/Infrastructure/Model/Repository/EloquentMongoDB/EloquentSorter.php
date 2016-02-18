@@ -11,17 +11,18 @@
 namespace NilPortugues\Foundation\Infrastructure\Model\Repository\EloquentMongoDB;
 
 use Jenssegers\Mongodb\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Order;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Sort as SortInterface;
 
 /**
- * Class SqlSorter.
+ * Class EloquentSorter.
  */
 class EloquentSorter
 {
     /**
-     * @param Builder       $query
-     * @param SortInterface $sort
+     * @param Builder|EloquentBuilder $query
+     * @param SortInterface           $sort
      */
     public static function sort(Builder $query, SortInterface $sort)
     {

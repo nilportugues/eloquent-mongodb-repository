@@ -23,6 +23,9 @@ use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Sort;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\WriteRepository;
 use NilPortugues\Foundation\Domain\Model\Repository\Page as ResultPage;
 
+/**
+ * Class EloquentRepository.
+ */
 abstract class EloquentRepository implements ReadRepository, WriteRepository, PageRepository
 {
     /**
