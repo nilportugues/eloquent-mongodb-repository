@@ -23,6 +23,11 @@ class EloquentFilter
     const MUST = 'must';
     const SHOULD = 'should';
 
+    const CONTAINS_PATTERN = '/%s/i';
+    const STARTS_WITH_PATTERN = '/^%s/i';
+    const ENDS_WITH_PATTERN = '/%s$/i';
+    const EQUALS_PATTERN = '/^%s/i';
+
     const NOT_CONTAINS_PATTERN = '/^((?!%s.))/i';
     const NOT_ENDS_WITH_PATTERN = '/.*(?<!%s)$/i';
     const NOT_STARTS_WITH_PATTERN = '/^(?!%s).+/i';
@@ -84,26 +89,29 @@ class EloquentFilter
         foreach ($filters as $filterName => $valuePair) {
             foreach ($valuePair as $key => $value) {
                 if (is_array($value) && count($value) > 0) {
-                    if (count($value) > 1) {
+                    $value = array_values($value);
+                    if (count($value[0]) > 1) {
                         switch ($filterName) {
                             case BaseFilter::RANGES:
-                                $where->getQuery()->whereBetween($key, [$value[0], $value[1]]);
+                                $where->whereBetween($key, [$value[0][0], $value[0][1]]);
                                 break;
                             case BaseFilter::NOT_RANGES:
-                                $where->getQuery()->whereNotBetween($key, [$value[0], $value[1]]);
-                                break;
-                            case BaseFilter::GROUP:
-                                $where->getQuery()->whereIn($key, $value);
-                                break;
-                            case BaseFilter::NOT_GROUP:
-                                $where->getQuery()->whereNotIn($key, $value);
+                                $where->whereNotBetween($key, [$value[0][0], $value[0][1]]);
                                 break;
                         }
-                        break;
+                    } else {
+                        switch ($filterName) {
+                            case BaseFilter::GROUP:
+                                $where->whereIn($key, $value);
+                                break;
+                            case BaseFilter::NOT_GROUP:
+                                $where->whereNotIn($key, $value);
+                                break;
+                        }
                     }
-                    $value = array_shift($value);
                 }
 
+                $value = array_shift($value);
                 switch ($filterName) {
                     case BaseFilter::GREATER_THAN_OR_EQUAL:
                         $where->where($key, '>=', $value);
@@ -118,16 +126,16 @@ class EloquentFilter
                         $where->where($key, '<', $value);
                         break;
                     case BaseFilter::CONTAINS:
-                        $where->where($key, 'regex', '/'.$value.'/i');
+                        $where->where($key, 'regex', sprintf(self::CONTAINS_PATTERN, $value));
                         break;
                     case BaseFilter::NOT_CONTAINS:
                         $where->where($key, 'regex', sprintf(self::NOT_CONTAINS_PATTERN, $value));
                         break;
                     case BaseFilter::STARTS_WITH:
-                        $where->where($key, 'regex', '/^'.$value.'/i');
+                        $where->where($key, 'regex', sprintf(self::STARTS_WITH_PATTERN, $value));
                         break;
                     case BaseFilter::ENDS_WITH:
-                        $where->where($key, 'regex', '/'.$value.'$/i');
+                        $where->where($key, 'regex', sprintf(self::ENDS_WITH_PATTERN, $value));
                         break;
                     case BaseFilter::EQUALS:
                         $where->where($key, '=', $value);
@@ -149,27 +157,29 @@ class EloquentFilter
         foreach ($filters as $filterName => $valuePair) {
             foreach ($valuePair as $key => $value) {
                 if (is_array($value) && count($value) > 0) {
-                    if (count($value) > 1) {
+                    $value = array_values($value);
+                    if (count($value[0]) > 1) {
                         switch ($filterName) {
                             case BaseFilter::RANGES:
-                                $where->getQuery()->whereNotBetween($key, [$value[0], $value[1]]);
-
+                                $where->whereNotBetween($key, [$value[0][0], $value[0][1]]);
                                 break;
                             case BaseFilter::NOT_RANGES:
-                                $where->getQuery()->whereBetween($key, [$value[0], $value[1]]);
-                                break;
-                            case BaseFilter::NOT_GROUP:
-                                $where->getQuery()->whereIn($key, $value);
-                                break;
-                            case BaseFilter::GROUP:
-                                $where->getQuery()->whereNotIn($key, $value);
+                                $where->whereBetween($key, [$value[0][0], $value[0][1]]);
                                 break;
                         }
-                        break;
+                    } else {
+                        switch ($filterName) {
+                            case BaseFilter::GROUP:
+                                $where->whereNotIn($key, $value);
+                                break;
+                            case BaseFilter::NOT_GROUP:
+                                $where->whereIn($key, $value);
+                                break;
+                        }
                     }
-                    $value = array_shift($value);
                 }
 
+                $value = array_shift($value);
                 switch ($filterName) {
                     case BaseFilter::GREATER_THAN_OR_EQUAL:
                         $where->where($key, '<', $value);
@@ -187,7 +197,7 @@ class EloquentFilter
                         $where->where($key, 'regex', sprintf(self::NOT_CONTAINS_PATTERN, $value));
                         break;
                     case BaseFilter::NOT_CONTAINS:
-                        $where->where($key, 'regex', '/'.$value.'/i');
+                        $where->where($key, 'regex', sprintf(self::CONTAINS_PATTERN, $value));
                         break;
                     case BaseFilter::STARTS_WITH:
                         $where->where($key, 'regex', sprintf(self::NOT_STARTS_WITH_PATTERN, $value));

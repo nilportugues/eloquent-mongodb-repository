@@ -279,6 +279,34 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testFindByWithMustNotContainTest()
+    {
+        $filter = new Filter();
+        $filter->must()->notContain('name', 'Ken');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+        foreach ($results as $result) {
+            $this->assertFalse(strpos($result['name'], 'Ken'));
+        }
+    }
+
+    public function testFindByWithMustNotNotContain()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->notContain('name', 'Ken');
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(1, count($results));
+        foreach ($results as $result) {
+            $this->assertTrue(false !== strpos($result['name'], 'Ken'));
+        }
+    }
+
     public function testFindByWithMustEndsWith()
     {
         $filter = new Filter();
@@ -333,5 +361,164 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         foreach ($results as $result) {
             $this->assertFalse(strpos($result['name'], 'Ken'));
         }
+    }
+
+    public function testFindByWithMustBeLessThan()
+    {
+        $filter = new Filter();
+        $filter->must()->beLessThan('totalOrders', 6);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByWithMustNotBeLessThan()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->beLessThan('totalOrders', 2);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByWithMustBeLessThanOrEqual()
+    {
+        $filter = new Filter();
+        $filter->must()->beLessThanOrEqual('totalOrders', 4);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByWithMustNotBeLessThanOrEqual()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->beLessThanOrEqual('totalOrders', 4);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByWithMustBeGreaterThan()
+    {
+        $filter = new Filter();
+        $filter->must()->beGreaterThan('totalOrders', 2);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByWithMustNotBeGreaterThan()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->beGreaterThan('totalOrders', 6);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByWithMustBeGreaterThanOrEqual()
+    {
+        $filter = new Filter();
+        $filter->must()->beGreaterThanOrEqual('totalOrders', 2);
+
+        $fields = new Fields(['name']);
+        $results = $this->repository->findBy($filter, null, $fields);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByWithMustNotBeGreaterThanOrEqual()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->beGreaterThanOrEqual('totalOrders', 6);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(4, count($results));
+    }
+
+    public function testFindByMustIncludeGroup()
+    {
+        $filter = new Filter();
+        $filter->must()->includeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByMustNotIncludeGroup()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->includeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByMustNotIncludeGroupTest()
+    {
+        $filter = new Filter();
+        $filter->must()->notIncludeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(1, count($results));
+    }
+
+    public function testFindByMustNotNotIncludeGroup()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->notIncludeGroup('date', ['2010-12-01 00:00:00', '2010-12-10 00:00:00', '2013-02-22 00:00:00']);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByMustRange()
+    {
+        $filter = new Filter();
+        $filter->must()->range('totalOrders', 2, 4);
+
+        $results = $this->repository->findBy($filter);
+
+        $this->assertEquals(3, count($results));
+    }
+
+    public function testFindByMustNotRange()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->range('totalOrders', 2, 4);
+        $results = $this->repository->findBy($filter);
+        $this->assertEquals(2, count($results));
+    }
+    public function testFindByMustNotRangeTest()
+    {
+        $filter = new Filter();
+        $filter->must()->notRange('totalOrders', 2, 4);
+
+        $results = $this->repository->findBy($filter);
+        $this->assertEquals(2, count($results));
+    }
+
+    public function testFindByMustNotNotRangeTest()
+    {
+        $filter = new Filter();
+        $filter->mustNot()->notRange('totalOrders', 2, 4);
+
+        $results = $this->repository->findBy($filter);
+        $this->assertEquals(3, count($results));
     }
 }
