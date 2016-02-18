@@ -24,7 +24,7 @@ class UserAdapter
         return $mongoDB;
     }
     /**
-     * @param $model
+     * @param \NilPortugues\Example\Persistence\Eloquent\User|stdClass $model
      *
      * @return \NilPortugues\Example\Domain\User
      */
