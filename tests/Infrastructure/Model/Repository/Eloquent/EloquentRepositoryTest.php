@@ -33,6 +33,43 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         Database::dropAll();
     }
 
+    public function testItCanUpdateAnExistingClient()
+    {
+        $expected = $this->repository->find(new ClientId(4));
+        $expected->name = 'Homer Simpson';
+        $expected->date = (new DateTime('2010-12-10'))->format('Y-m-d H:i:s');
+        $expected->totalOrders = 4;
+        $expected->totalEarnings = 69158.687;
+
+        $client1 = $this->repository->add($expected);
+        $this->assertEquals('Homer Simpson', $client1->name);
+
+        $client1 = $this->repository->find(new ClientId(4));
+        $this->assertEquals('Homer Simpson', $client1->name);
+    }
+
+    public function testItCanUpdateAllClientsName()
+    {
+        $client1 = $this->repository->find(new ClientId(1));
+        $client1->name = 'Homer Simpson';
+
+        $client2 = $this->repository->find(new ClientId(2));
+        $client2->name = 'Homer Simpson';
+
+        $client3 = $this->repository->find(new ClientId(3));
+        $client3->name = 'Homer Simpson';
+
+        $client4 = $this->repository->find(new ClientId(4));
+        $client4->name = 'Homer Simpson';
+
+        $this->repository->addAll([$client1, $client2, $client3, $client4]);
+
+        for ($i = 1; $i <= 4; ++$i) {
+            $client = $this->repository->find(new ClientId($i));
+            $this->assertEquals('Homer Simpson', $client->name);
+        }
+    }
+
     public function testItCanFind()
     {
         /* @var Clients $client */

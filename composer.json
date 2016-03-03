@@ -16,7 +16,7 @@
     "nilportugues/assert": "^1.0",
     "illuminate/database": "^5.2",
     "illuminate/pagination": "^5.2",
-    "jenssegers/mongodb" : "v3.0.0-beta"
+    "jenssegers/mongodb" : "v3.0.*"
   },
   "require-dev": {
     "phpunit/phpunit": "4.8.*",
