@@ -17,8 +17,6 @@ $capsule->addConnection([
         'host' => 'localhost',
         'port' => 27017,
         'database' => 'default',
-        'username' => '',
-        'password' => '',
         'options' => [
             'db' => 'admin',
         ],
