@@ -1,6 +1,7 @@
 # Eloquent MongoDB Repository
 
 [![Build Status](https://travis-ci.org/PHPRepository/php-eloquent-mongodb-repository.svg)](https://travis-ci.org/PHPRepository/php-eloquent-mongodb-repository) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nilportugues/php-eloquent-mongodb-repository/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nilportugues/php-eloquent-mongodb-repository/?branch=master) [![SensioLabsInsight](https://insight.sensiolabs.com/projects/d993addb-38ad-4847-bd42-fa35fcfa0390/mini.png?gold)](https://insight.sensiolabs.com/projects/d993addb-38ad-4847-bd42-fa35fcfa0390) [![Latest Stable Version](https://poser.pugx.org/nilportugues/eloquent-mongodb-repository/v/stable?)](https://packagist.org/packages/nilportugues/eloquent-mongodb-repository) [![Total Downloads](https://poser.pugx.org/nilportugues/eloquent-mongodb-repository/downloads?)](https://packagist.org/packages/nilportugues/eloquent-mongodb-repository) [![License](https://poser.pugx.org/nilportugues/eloquent-mongodb-repository/license?)](https://packagist.org/packages/nilportugues/eloquent-mongodb-repository)
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://paypal.me/nilportugues)
 
 Eloquent MongoDB Repository using *[nilportugues/repository](https://github.com/nilportugues/php-repository)* as foundation, using *[jenssegers/mongodb](https://github.com/jenssegers/laravel-mongodb)*.
 
