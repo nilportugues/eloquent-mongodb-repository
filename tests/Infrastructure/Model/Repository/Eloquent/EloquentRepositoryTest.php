@@ -33,6 +33,96 @@ class EloquentRepositoryTest extends \PHPUnit_Framework_TestCase
         Database::dropAll();
     }
 
+    public function testItPageableFiltersAndDistinct()
+    {
+        $client1 = $this->repository->find(new ClientId(1));
+        $client1->name = 'Homer Simpson';
+
+        $client2 = $this->repository->find(new ClientId(2));
+        $client2->name = 'Homer Simpson';
+
+        $client3 = $this->repository->find(new ClientId(3));
+        $client3->name = 'Homer Simpson';
+
+        $client4 = $this->repository->find(new ClientId(4));
+        $client4->name = 'Homer Simpson';
+
+        $this->repository->addAll([$client1, $client2, $client3, $client4]);
+
+        $distinctFields = new Fields(['name']);
+        $pageable = new Pageable(1, 10, new Sort(['name'], new Order('DESC')), null, null, $distinctFields);
+
+        $result = $this->repository->findAll($pageable);
+
+        $this->assertEquals(1, count($result->content()));
+    }
+
+    public function testItCanRunSuccessfulTransaction()
+    {
+        $transaction = function () {
+            $client1 = $this->repository->find(new ClientId(1));
+            $client1->name = 'Homer Simpson';
+
+            $client2 = $this->repository->find(new ClientId(2));
+            $client2->name = 'Homer Simpson';
+
+            $this->repository->addAll([$client1, $client2]);
+        };
+
+        $this->repository->transactional($transaction);
+
+        for ($i = 1; $i <= 2; ++$i) {
+            $client = $this->repository->find(new ClientId($i));
+            $this->assertEquals('Homer Simpson', $client->name);
+        }
+    }
+
+    public function testItCanFailTransactionAndThrowException()
+    {
+        $transaction = function () {
+            $client1 = $this->repository->find(new ClientId(1));
+            $client1->name = 'Homer Simpson';
+
+            $client2 = $this->repository->find(new ClientId(2));
+            $client2->name = 'Homer Simpson';
+
+            $this->repository->addAll([$client1, $client2]);
+            throw new \Exception('Just because');
+        };
+
+        $this->setExpectedException(Exception::class);
+        $this->repository->transactional($transaction);
+    }
+
+    public function testItFindByDistinct()
+    {
+        $client1 = $this->repository->find(new ClientId(1));
+        $client1->name = 'Homer Simpson';
+
+        $client2 = $this->repository->find(new ClientId(2));
+        $client2->name = 'Homer Simpson';
+
+        $client3 = $this->repository->find(new ClientId(3));
+        $client3->name = 'Homer Simpson';
+
+        $client4 = $this->repository->find(new ClientId(4));
+        $client4->name = 'Homer Simpson';
+
+        $this->repository->addAll([$client1, $client2, $client3, $client4]);
+
+        $distinctFields = new Fields(['name']);
+        $filter = new Filter();
+        $filter->must()->notEmpty('name');
+
+        $results = $this->repository->findByDistinct(
+            $distinctFields,
+            $filter,
+            new Sort(['name'], new Order('DESC'))
+        );
+
+        $this->assertEquals(1, count($results));
+    }
+
     public function testItCanUpdateAnExistingClient()
     {
         $expected = $this->repository->find(new ClientId(4));

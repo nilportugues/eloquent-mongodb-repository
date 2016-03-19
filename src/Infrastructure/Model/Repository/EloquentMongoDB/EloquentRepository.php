@@ -243,9 +243,18 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
                 EloquentSorter::sort($query, $sort);
             }
 
+            $model = $model
+                ->take($pageable->pageSize())
+                ->offset($pageable->pageSize() * ($pageable->pageNumber() - 1));
+
+            if (count($distinctFields = $pageable->distinctFields()->get()) > 0) {
+                $model = $model->distinct();
+                $columns = $distinctFields;
+            }
+
             return new ResultPage(
-                $query->paginate($pageable->pageSize(), $columns, 'page', $pageable->pageNumber())->items(),
-                $query->paginate()->total(),
+                $model->get($columns)->toArray(),
+                $model->count(),
                 $pageable->pageNumber(),
                 ceil($query->paginate()->total() / $pageable->pageSize())
             );
@@ -257,5 +266,49 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
             1,
             1
         );
+    }
+
+    /**
+     * Returns all instances of the type meeting $distinctFields values.
+     *
+     * @param Fields      $distinctFields
+     * @param Filter|null $filter
+     * @param Sort|null   $sort
+     *
+     * @return array
+     */
+    public function findByDistinct(Fields $distinctFields, Filter $filter = null, Sort $sort = null)
+    {
+        $model = $this->getModelInstance();
+        $query = $model->query();
+
+        $columns = (count($fields = $distinctFields->get()) > 0) ? $fields : ['*'];
+
+        if ($filter) {
+            EloquentFilter::filter($query, $filter);
+        }
+
+        if ($sort) {
+            EloquentSorter::sort($query, $sort);
+        }
+
+        return $query->getQuery()->distinct()->get($columns);
+    }
+
+    /**
+     * Repository data is added or removed as a whole block.
+     * Must work or fail and rollback any persisted/erased data.
+     *
+     * @param callable $transaction
+     *
+     * @throws \Exception
+     */
+    public function transactional(callable $transaction)
+    {
+        try {
+            $transaction();
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 }
