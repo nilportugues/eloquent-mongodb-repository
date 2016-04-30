@@ -11,7 +11,6 @@
 namespace NilPortugues\Foundation\Infrastructure\Model\Repository\EloquentMongoDB;
 
 use Jenssegers\Mongodb\Eloquent\Model;
-use NilPortugues\Assert\Assert;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Fields;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Filter;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Identity;
@@ -21,17 +20,32 @@ use NilPortugues\Foundation\Domain\Model\Repository\Contracts\PageRepository;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\ReadRepository;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Sort;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\WriteRepository;
-use NilPortugues\Foundation\Domain\Model\Repository\Page as ResultPage;
 
 /**
  * Class EloquentRepository.
  */
 abstract class EloquentRepository implements ReadRepository, WriteRepository, PageRepository
 {
-    /**
-     * @var Model
-     */
+    /** @var Model */
     protected static $instance;
+    /** @var EloquentReadRepository */
+    protected $readRepository;
+    /** @var EloquentWriteRepository */
+    protected $writeRepository;
+    /** @var EloquentPageRepository */
+    protected $pageRepository;
+
+    /**
+     * EloquentRepository constructor.
+     */
+    public function __construct()
+    {
+        $eloquentModel = $this->getModelInstance();
+
+        $this->readRepository = EloquentReadRepository::create($eloquentModel);
+        $this->writeRepository = EloquentWriteRepository::create($eloquentModel);
+        $this->pageRepository = EloquentPageRepository::create($eloquentModel);
+    }
 
     /**
      * Retrieves an entity by its id.
@@ -43,10 +57,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function find(Identity $id, Fields $fields = null)
     {
-        $model = $this->getModelInstance();
-        $columns = ($fields) ? $fields->get() : ['*'];
-
-        return $model->query()->where($model->getKeyName(), '=', $id->id())->get($columns)->first();
+        return $this->readRepository->find($id, $fields);
     }
 
     /**
@@ -60,19 +71,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function findBy(Filter $filter = null, Sort $sort = null, Fields $fields = null)
     {
-        $model = $this->getModelInstance();
-        $query = $model->query();
-        $columns = ($fields) ? $fields->get() : ['*'];
-
-        if ($filter) {
-            EloquentFilter::filter($query, $filter);
-        }
-
-        if ($sort) {
-            EloquentSorter::sort($query, $sort);
-        }
-
-        return $query->get($columns)->toArray();
+        return $this->readRepository->findBy($filter, $sort, $fields);
     }
 
     /**
@@ -108,10 +107,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function exists(Identity $id)
     {
-        $model = $this->getModelInstance();
-        $result = $model->query()->where($model->getKeyName(), '=', $id->id())->first();
-
-        return null !== $result;
+        return $this->writeRepository->exists($id);
     }
 
     /**
@@ -123,14 +119,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function count(Filter $filter = null)
     {
-        $model = $this->getModelInstance();
-        $query = $model->query();
-
-        if ($filter) {
-            EloquentFilter::filter($query, $filter);
-        }
-
-        return (int) $query->getQuery()->count();
+        return $this->writeRepository->count($filter);
     }
 
     /**
@@ -142,20 +131,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function add(Identity $value)
     {
-        $this->guard($value);
-        $value->save();
-
-        return $value;
-    }
-
-    /**
-     * @param $value
-     *
-     * @throws \Exception
-     */
-    protected function guard($value)
-    {
-        Assert::isInstanceOf($value, $this->getModelInstance());
+        return $this->writeRepository->add($value);
     }
 
     /**
@@ -169,18 +145,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function addAll(array $values)
     {
-        $model = $this->getModelInstance();
-        $ids = [];
-        try {
-            foreach ($values as $value) {
-                $this->guard($value);
-                $value->save();
-                $ids[] = $value->getIdAttribute('_id');
-            }
-        } catch (\Exception $e) {
-            $model->destroy($ids);
-            throw $e;
-        }
+        return $this->writeRepository->addAll($values);
     }
 
     /**
@@ -192,9 +157,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function remove(Identity $id)
     {
-        $model = $this->getModelInstance();
-
-        return (bool) $model->query()->find($id->id())->delete();
+        return $this->writeRepository->remove($id);
     }
 
     /**
@@ -207,14 +170,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function removeAll(Filter $filter = null)
     {
-        $model = $this->getModelInstance();
-        $query = $model->query();
-
-        if ($filter) {
-            EloquentFilter::filter($query, $filter);
-        }
-
-        return $query->delete();
+        return $this->writeRepository->removeAll($filter);
     }
 
     /**
@@ -226,46 +182,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function findAll(Pageable $pageable = null)
     {
-        $model = $this->getModelInstance();
-        $query = $model->query();
-
-        if ($pageable) {
-            $fields = $pageable->fields();
-            $columns = (!$fields->isNull()) ? $fields->get() : ['*'];
-
-            $filter = $pageable->filters();
-            if (!$filter->isNull()) {
-                EloquentFilter::filter($query, $filter);
-            }
-
-            $sort = $pageable->sortings();
-            if (!$sort->isNull()) {
-                EloquentSorter::sort($query, $sort);
-            }
-
-            $model = $model
-                ->take($pageable->pageSize())
-                ->offset($pageable->pageSize() * ($pageable->pageNumber() - 1));
-
-            if (count($distinctFields = $pageable->distinctFields()->get()) > 0) {
-                $model = $model->distinct();
-                $columns = $distinctFields;
-            }
-
-            return new ResultPage(
-                $model->get($columns)->toArray(),
-                $model->count(),
-                $pageable->pageNumber(),
-                ceil($query->paginate()->total() / $pageable->pageSize())
-            );
-        }
-
-        return new ResultPage(
-            $query->paginate($query->paginate()->total(), ['*'], 'page', 1)->items(),
-            $query->paginate()->total(),
-            1,
-            1
-        );
+        return $this->pageRepository->findAll($pageable);
     }
 
     /**
@@ -279,20 +196,7 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function findByDistinct(Fields $distinctFields, Filter $filter = null, Sort $sort = null)
     {
-        $model = $this->getModelInstance();
-        $query = $model->query();
-
-        $columns = (count($fields = $distinctFields->get()) > 0) ? $fields : ['*'];
-
-        if ($filter) {
-            EloquentFilter::filter($query, $filter);
-        }
-
-        if ($sort) {
-            EloquentSorter::sort($query, $sort);
-        }
-
-        return $query->getQuery()->distinct()->get($columns);
+        return $this->readRepository->findByDistinct($distinctFields, $filter, $sort);
     }
 
     /**
@@ -305,10 +209,6 @@ abstract class EloquentRepository implements ReadRepository, WriteRepository, Pa
      */
     public function transactional(callable $transaction)
     {
-        try {
-            $transaction();
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        $this->writeRepository->transactional($transaction);
     }
 }

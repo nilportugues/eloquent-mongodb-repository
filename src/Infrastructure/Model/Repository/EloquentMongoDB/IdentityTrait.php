@@ -17,20 +17,20 @@ trait IdentityTrait
 {
     /**
      * @return string
+     * @codeCoverageIgnore
+     */
+    public function __toString()
+    {
+        return $this->id();
+    }
+
+    /**
+     * @return string
      */
     public function id()
     {
         $id = $this->getKeyName();
 
         return $this->attributes[$id];
-    }
-
-    /**
-     * @return string
-     * @codeCoverageIgnore
-     */
-    public function __toString()
-    {
-        return $this->id();
     }
 }

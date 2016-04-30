@@ -8,47 +8,75 @@ use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Identity;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\ReadRepository;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Sort;
 
-class EloquentReadRepository implements ReadRepository
+class EloquentReadRepository extends BaseEloquentRepository implements ReadRepository
 {
     /**
      * Retrieves an entity by its id.
      *
-     * @param Identity $id
+     * @param Identity    $id
      * @param Fields|null $fields
      *
      * @return array
      */
     public function find(Identity $id, Fields $fields = null)
     {
-        // TODO: Implement find() method.
+        $model = self::$instance;
+        $columns = ($fields) ? $fields->get() : ['*'];
+
+        return $model->query()->where($model->getKeyName(), '=', $id->id())->get($columns)->first();
     }
 
     /**
      * Returns all instances of the type.
      *
      * @param Filter|null $filter
-     * @param Sort|null $sort
+     * @param Sort|null   $sort
      * @param Fields|null $fields
      *
      * @return array
      */
     public function findBy(Filter $filter = null, Sort $sort = null, Fields $fields = null)
     {
-        // TODO: Implement findBy() method.
+        $model = self::$instance;
+        $query = $model->query();
+        $columns = ($fields) ? $fields->get() : ['*'];
+
+        if ($filter) {
+            EloquentFilter::filter($query, $filter);
+        }
+
+        if ($sort) {
+            EloquentSorter::sort($query, $sort);
+        }
+
+        return $query->get($columns)->toArray();
     }
 
     /**
      * Returns all instances of the type meeting $distinctFields values.
      *
-     * @param Fields $distinctFields
+     * @param Fields      $distinctFields
      * @param Filter|null $filter
-     * @param Sort|null $sort
+     * @param Sort|null   $sort
      *
      * @return array
      */
     public function findByDistinct(Fields $distinctFields, Filter $filter = null, Sort $sort = null)
     {
-        // TODO: Implement findByDistinct() method.
+        $model = self::$instance;
+        $query = $model->query();
+
+        $columns = (count($fields = $distinctFields->get()) > 0) ? $fields : ['*'];
+
+        if ($filter) {
+            EloquentFilter::filter($query, $filter);
+        }
+
+        if ($sort) {
+            EloquentSorter::sort($query, $sort);
+        }
+
+        return $query->getQuery()->distinct()->get($columns);
     }
 
     /**

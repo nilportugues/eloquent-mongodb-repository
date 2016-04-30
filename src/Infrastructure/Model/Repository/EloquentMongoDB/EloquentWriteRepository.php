@@ -6,9 +6,8 @@ use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Filter;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Identity;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\WriteRepository;
 
-class EloquentWriteRepository implements WriteRepository
+class EloquentWriteRepository extends BaseEloquentRepository implements WriteRepository
 {
-
     /**
      * Returns the total amount of elements in the repository given the restrictions provided by the Filter object.
      *
@@ -18,7 +17,14 @@ class EloquentWriteRepository implements WriteRepository
      */
     public function count(Filter $filter = null)
     {
-        // TODO: Implement count() method.
+        $model = self::$instance;
+        $query = $model->query();
+
+        if ($filter) {
+            EloquentFilter::filter($query, $filter);
+        }
+
+        return (int) $query->getQuery()->count();
     }
 
     /**
@@ -30,7 +36,10 @@ class EloquentWriteRepository implements WriteRepository
      */
     public function exists(Identity $id)
     {
-        // TODO: Implement exists() method.
+        $model = self::$instance;
+        $result = $model->query()->where($model->getKeyName(), '=', $id->id())->first();
+
+        return null !== $result;
     }
 
     /**
@@ -42,7 +51,10 @@ class EloquentWriteRepository implements WriteRepository
      */
     public function add(Identity $value)
     {
-        // TODO: Implement add() method.
+        $this->guard($value);
+        $value->save();
+
+        return $value;
     }
 
     /**
@@ -51,20 +63,37 @@ class EloquentWriteRepository implements WriteRepository
      * @param array $values
      *
      * @return mixed
+     *
+     * @throws \Exception
      */
     public function addAll(array $values)
     {
-        // TODO: Implement addAll() method.
+        $model = self::$instance;
+        $ids = [];
+        try {
+            foreach ($values as $value) {
+                $this->guard($value);
+                $value->save();
+                $ids[] = $value->getIdAttribute('_id');
+            }
+        } catch (\Exception $e) {
+            $model->destroy($ids);
+            throw $e;
+        }
     }
 
     /**
      * Removes the entity with the given id.
      *
      * @param $id
+     *
+     * @return bool
      */
     public function remove(Identity $id)
     {
-        // TODO: Implement remove() method.
+        $model = self::$instance;
+
+        return (bool) $model->query()->find($id->id())->delete();
     }
 
     /**
@@ -77,7 +106,14 @@ class EloquentWriteRepository implements WriteRepository
      */
     public function removeAll(Filter $filter = null)
     {
-        // TODO: Implement removeAll() method.
+        $model = self::$instance;
+        $query = $model->query();
+
+        if ($filter) {
+            EloquentFilter::filter($query, $filter);
+        }
+
+        return $query->delete();
     }
 
     /**
@@ -90,6 +126,10 @@ class EloquentWriteRepository implements WriteRepository
      */
     public function transactional(callable $transaction)
     {
-        // TODO: Implement transactional() method.
+        try {
+            $transaction();
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 }
