@@ -9,7 +9,7 @@ use NilPortugues\Foundation\Domain\Model\Repository\Filter;
 use NilPortugues\Foundation\Domain\Model\Repository\Order;
 use NilPortugues\Foundation\Domain\Model\Repository\Sort;
 
-include_once '../vendor/autoload.php';
+include_once __DIR__.'/../vendor/autoload.php';
 
 //-------------------------------------------------------------------------------------------------------------
 // - Create database if does not exist
