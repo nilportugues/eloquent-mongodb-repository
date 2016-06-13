@@ -7,6 +7,7 @@ use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Filter;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Identity;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\ReadRepository;
 use NilPortugues\Foundation\Domain\Model\Repository\Contracts\Sort;
+use NilPortugues\Foundation\Domain\Model\Repository\Filter as DomainFilter;
 
 class EloquentReadRepository extends BaseEloquentRepository implements ReadRepository
 {
@@ -88,7 +89,12 @@ class EloquentReadRepository extends BaseEloquentRepository implements ReadRepos
      */
     public function count(Filter $filter = null)
     {
-        // TODO: Implement count() method.
+        $model = self::$instance;
+        $query = $model->query();
+        if ($filter) {
+            EloquentFilter::filter($query, $filter);
+        }
+        return (int) $query->getQuery()->count();
     }
 
     /**
@@ -100,6 +106,9 @@ class EloquentReadRepository extends BaseEloquentRepository implements ReadRepos
      */
     public function exists(Identity $id)
     {
-        // TODO: Implement exists() method.
+        $model = self::$instance;
+        $filter = new DomainFilter();
+        $filter->must()->equal($model->getKeyName(), $id->id());
+        return $this->count($filter) > 0;
     }
 }

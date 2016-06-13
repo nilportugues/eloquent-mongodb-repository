@@ -44,11 +44,14 @@ class EloquentPageRepository extends BaseEloquentRepository implements PageRepos
                 $columns = $distinctFields;
             }
 
+            $pageSize = $pageable->pageSize();
+            $pageSize = ($pageSize>0) ? $pageSize : 1;
+
             return new ResultPage(
                 $model->get($columns)->toArray(),
                 $model->count(),
                 $pageable->pageNumber(),
-                ceil($query->paginate()->total() / $pageable->pageSize())
+                ceil($query->paginate()->total() / $pageSize)
             );
         }
 
